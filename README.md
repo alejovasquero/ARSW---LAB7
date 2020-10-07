@@ -1,4 +1,4 @@
-# Laboratorio 7 - STOMP - Cinema Books
+# Laboratorio 7 - STOMP Cinema Books
 
 ## Empezando
 
@@ -46,6 +46,31 @@ mvn spring-boot:run
 ```
 
 --------------------
+
+## Solución
+
+### Parte 1 
+Añadimos los campos de solicitud.
+
+![](img/README/form1.PNG)
+
+Abrimos varias ventanas y corremos la solicitud de reserva.
+
+![](img/README/alert1.PNG)
+
+Vemos que las otras ventanas han sido alertadas del cambio.
+
+![](img/README/alertAll1.PNG)
+
+## Parte 2
+
+Añadimos el listener por medio del botón de comprar tiquete.
+
+![](img/README/listener2.PNG)
+
+Realizamos la prueba de verificación, dando clic a un asiento.
+
+![](img/README/testFinal2.PNG)
 
 ## Construido con
 

@@ -1,17 +1,49 @@
-var app = (function () {
+var stomp = (function () {
 
     var seats = [[true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true]];
-    var c,ctx;
-    
+    var c, ctx;
+
     class Seat {
         constructor(row, col) {
             this.row = row;
             this.col = col;
         }
     }
-    
 
+    var canvas = null;
     var stompClient = null;
+
+    var xStart = 20;
+    var yStart = 120;
+
+    var ancho = 20;
+    var alto = 20;
+
+    var getColl =  function(x){
+        var start = xStart;
+        var ans = undefined;
+        for(i=0; i< seats[0].length ; i++){
+            if(start <= x && x <= start + ancho){
+                ans = i;
+                return ans;
+            }
+            start+= ancho * 2;
+        }
+        return ans;
+    }
+
+    var getRow =  function(y){
+        var start = yStart;
+        var ans = undefined;
+        for(i=0; i< seats.length ; i++){
+            if(start <= y && y <= start + alto){
+                ans = i;
+                return ans;
+            }
+            start+= alto * 2;
+        }
+        return ans;
+    }
 
     //get the x, y positions of the mouse click relative to the canvas
     var getMousePosition = function (evt) {
@@ -19,12 +51,17 @@ var app = (function () {
             var rect = canvas.getBoundingClientRect();
             var x = e.clientX - rect.left;
             var y = e.clientY - rect.top;
-            console.info(x);
-            console.info(y);
+            var colu = getColl(x);
+            var roww = getRow(y);
+            console.info(roww + " - " + colu)
+            if(colu != undefined && roww != undefined){
+                stomp.buyTicket(roww, colu);
+            }
         });
-  
+
+
     };
-    
+
     var drawSeats = function (cinemaFunction) {
         c = document.getElementById("myCanvas");
         ctx = c.getContext("2d");
@@ -52,6 +89,16 @@ var app = (function () {
         }
     };
 
+    var fillSeat = function (row, col) {
+        console.log(row);
+        console.log(col);
+        c = document.getElementById("myCanvas");
+        ctx = c.getContext("2d");
+        ctx.fillStyle = "#FF0000";
+        ctx.fillRect(40 * col + 20, 40 * row + 120, 20, 20);
+        seats[row][col] = false;
+    }
+
     var connectAndSubscribe = function () {
         console.info('Connecting to WS...');
         var socket = new SockJS('/stompendpoint');
@@ -61,26 +108,25 @@ var app = (function () {
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
             stompClient.subscribe('/topic/buyticket', function (eventbody) {
-               alert("evento recibido");
-               var theObject=JSON.parse(eventbody.body);
-               console.log(theObject);
-
+                var theObject = JSON.parse(eventbody.body);
+                fillSeat(theObject.row, theObject.col);
+                console.log(theObject);
             });
         });
 
     };
 
-    var verifyAvailability = function (row,col) {
+    var verifyAvailability = function (row, col) {
         var st = new Seat(row, col);
-        if (seats[row][col]===true){
-            seats[row][col]=false;
+        if (seats[row][col] === true) {
+            seats[row][col] = false;
             console.info("purchased ticket");
-            stompClient.send("/topic/buyticket", {}, JSON.stringify(st)); 
-            
+            stompClient.send("/topic/buyticket", {}, JSON.stringify(st));
+
         }
-        else{
+        else {
             console.info("Ticket not available");
-        }  
+        }
 
     };
 
@@ -89,16 +135,21 @@ var app = (function () {
     return {
 
         init: function () {
-            var can = document.getElementById("canvas");
-            drawSeats();
-            //websocket connection
             connectAndSubscribe();
+            try {
+                drawSeats();
+            } catch (error) {
+
+            }
+            //websocket connection
+
+
         },
 
         buyTicket: function (row, col) {
             console.info("buying ticket at row: " + row + "col: " + col);
-            verifyAvailability(row,col);
-            
+            verifyAvailability(row, col);
+
             //buy ticket
         },
 
@@ -108,6 +159,16 @@ var app = (function () {
             }
             setConnected(false);
             console.log("Disconnected");
+        },
+
+        setListener: function (callback) {
+            canvas = document.getElementById('myCanvas');
+            if (callback == undefined) {
+                canvas.addEventListener('click', getMousePosition(), false);
+            } else {
+                canvas.addEventListener('click', callback, false);
+            }
+
         }
     };
 

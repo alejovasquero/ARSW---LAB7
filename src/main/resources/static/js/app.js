@@ -1,68 +1,4 @@
 var app = (function () {
-
-
-    //STOMP
-    var seats = [[true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true]];
-
-    class Seat {
-        constructor(row, col) {
-            this.row = row;
-            this.col = col;
-        }
-    }
-
-    var stompClient = null;
-
-    //get the x, y positions of the mouse click relative to the canvas
-    var getMousePosition = function (evt) {
-        $('#myCanvas').click(function (e) {
-            var rect = canvas.getBoundingClientRect();
-            var x = e.clientX - rect.left;
-            var y = e.clientY - rect.top;
-            console.info(x);
-            console.info(y);
-        });
-
-    };
-
-    var connectAndSubscribe = function () {
-        console.info('Connecting to WS...');
-        var socket = new SockJS('/stompendpoint');
-        stompClient = Stomp.over(socket);
-
-        //subscribe to /topic/TOPICXX when connections succeed
-        stompClient.connect({}, function (frame) {
-            console.log('Connected: ' + frame);
-            stompClient.subscribe('/topic/buyticket', function (eventbody) {
-                alert("evento recibido");
-                var theObject = JSON.parse(eventbody.body);
-                console.log(theObject);
-
-            });
-        });
-
-    };
-
-    var verifyAvailability = function (row, col) {
-        var st = new Seat(row, col);
-        if (seats[row][col] === true) {
-            seats[row][col] = false;
-            console.info("purchased ticket");
-            stompClient.send("/topic/buyticket", {}, JSON.stringify(st));
-
-        }
-        else {
-            console.info("Ticket not available");
-        }
-
-    };
-
-
-
-    //ADDITION
-
-
-
     var REPOSITORY = apiclient;
 
     var name = "";
@@ -274,27 +210,10 @@ var app = (function () {
             );
         },
 
-        init: function () {
-            //var can = document.getElementById("canvas");
-            //drawSeats();
-            //websocket connection
-            connectAndSubscribe();
-        },
-
         buyTicket: function (row, col) {
             console.info("buying ticket at row: " + row + "col: " + col);
             verifyAvailability(row, col);
-
-            //buy ticket
-        },
-
-        disconnect: function () {
-            if (stompClient !== null) {
-                stompClient.disconnect();
-            }
-            setConnected(false);
-            console.log("Disconnected");
         }
-    };
+    }
 
 })();
