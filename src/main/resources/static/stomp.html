@@ -5,26 +5,37 @@ To change this template file, choose Tools | Templates
 and open the template in the editor.
 -->
 <html>
-    <head>
-        <title>Cinema bookings</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="/webjars/jquery/jquery.min.js"></script>
-        <script src="/webjars/sockjs-client/sockjs.min.js"></script>
-        <script src="/webjars/stomp-websocket/stomp.min.js"></script>
-        <script src="/webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-        <script src="js/stomp.js"></script>
 
-        
-    </head>
-    <body  onload="app.init()">
-        <div>
+<head>
+    <title>Cinema bookings</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/webjars/jquery/jquery.min.js"></script>
+    <script src="/webjars/sockjs-client/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+    <script src="/webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="js/stomp.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" 
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+
+
+</head>
+
+<body onload="app.init()">
+    <div>
         <canvas id="myCanvas" width="500" height="400" style="border:1px solid #000000;">
-        Your browser does not support the HTML5 canvas tag.
+            Your browser does not support the HTML5 canvas tag.
         </canvas>
-        
-        
-        
-        </div>
-    </body>
+    </div>
+
+    <div class="grid-item console">
+        <br></br>
+        <input id="row" placeholder="Row" type="number"></input>
+        <input id="col" placeholder="Column" type="number"></input>
+        <button onclick="app.buyTicket(Number($('#row').val()),  Number($('#col').val()) )">Buy ticket</button>
+    </div>
+
+</body>
+
 </html>

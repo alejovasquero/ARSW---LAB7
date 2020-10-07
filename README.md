@@ -1,4 +1,4 @@
-# Laboratorio 6 - Clientes pesados II
+# Laboratorio 7 - STOMP - Cinema Books
 
 ## Empezando
 
@@ -21,13 +21,13 @@ Primeramente vamos a descargar el repositorio en nuestra máquina local, y en la
 nuestra preferencia. En consola vamos a digitar el siguiente comando para clonar el repositorio.
 
 ```console
-git clone https://github.com/alejovasquero/ARSW---LAB6
+git clone https://github.com/alejovasquero/ARSW---LAB7
 ```
 
 Entremos a el directorio del proyecto
 
 ```console
-cd ARSW---LAB6
+cd ARSW---LAB7
 ```
 
 Debemos compilar el proyecto, que contiene las clases necesarias para poder correr nuestro
@@ -58,7 +58,3 @@ mvn spring-boot:run
 
 * **Alejandro Vasquez** - *Extender* - [alejovasquero](https://github.com/alejovasquero)
 * **Michael Ballesteros** - *Extender* - [Wasawsky](https://github.com/Wasawsky)
-
-## Licencia
-
-Este proyecto está licenciado bajo la licencia del MIT - Vea el [LICENSE](LICENSE) para más detalles
