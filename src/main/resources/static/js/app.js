@@ -1,4 +1,68 @@
-var app = (function (){
+var app = (function () {
+
+
+    //STOMP
+    var seats = [[true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true]];
+
+    class Seat {
+        constructor(row, col) {
+            this.row = row;
+            this.col = col;
+        }
+    }
+
+    var stompClient = null;
+
+    //get the x, y positions of the mouse click relative to the canvas
+    var getMousePosition = function (evt) {
+        $('#myCanvas').click(function (e) {
+            var rect = canvas.getBoundingClientRect();
+            var x = e.clientX - rect.left;
+            var y = e.clientY - rect.top;
+            console.info(x);
+            console.info(y);
+        });
+
+    };
+
+    var connectAndSubscribe = function () {
+        console.info('Connecting to WS...');
+        var socket = new SockJS('/stompendpoint');
+        stompClient = Stomp.over(socket);
+
+        //subscribe to /topic/TOPICXX when connections succeed
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+            stompClient.subscribe('/topic/buyticket', function (eventbody) {
+                alert("evento recibido");
+                var theObject = JSON.parse(eventbody.body);
+                console.log(theObject);
+
+            });
+        });
+
+    };
+
+    var verifyAvailability = function (row, col) {
+        var st = new Seat(row, col);
+        if (seats[row][col] === true) {
+            seats[row][col] = false;
+            console.info("purchased ticket");
+            stompClient.send("/topic/buyticket", {}, JSON.stringify(st));
+
+        }
+        else {
+            console.info("Ticket not available");
+        }
+
+    };
+
+
+
+    //ADDITION
+
+
+
     var REPOSITORY = apiclient;
 
     var name = "";
@@ -9,82 +73,86 @@ var app = (function (){
     var movieName = "";
     var currentDate = "";
 
-    var seekerButton ="<td><button type='button' class='seeker'>"
-                      					+ "Get Functions</button></td>"
+    var seekerButton = "<td><button type='button' class='seeker'>"
+        + "Get Functions</button></td>"
     var widht = 70;
     var height = 70;
     var space = 3;
-    var callback = function (param){
+    var callback = function (param) {
         console.log("2")
-        if(param==undefined){
+        if (param == undefined) {
             alert("Cinema no existe o datos invalidos");
             return;
         }
         cinema = param;
         searchByNameAndDate();
         checkTable();
-        funciones.map(function(data){
-            var str = "<tr class='omg'>"+
-              "<td name='movie'>"+data.movie+"</td>"+
-              "<td name='genre'>"+data.genero+"</td>"+
-              "<td name='fecha'>"+data.fecha+"</td>"+
-              seekerButton +
-            "</tr>";
+        funciones.map(function (data) {
+            var str = "<tr class='omg'>" +
+                "<td name='movie'>" + data.movie + "</td>" +
+                "<td name='genre'>" + data.genero + "</td>" +
+                "<td name='fecha'>" + data.fecha + "</td>" +
+                seekerButton +
+                "</tr>";
             $('#mainTable').append(str)
         })
         //console.log(funciones);
     };
 
-    var searchByName = function(){
-        funciones = cinema.functions.map(function(data){
-            return {fecha: data.date,
-                    movie: data.movie.name,
-                    genero: data.movie.genre};
+    var searchByName = function () {
+        funciones = cinema.functions.map(function (data) {
+            return {
+                fecha: data.date,
+                movie: data.movie.name,
+                genero: data.movie.genre
+            };
         })
     }
 
-    var searchByNameAndDate = function(){
-        funciones = cinema.map(function(data){
-            return {fecha: data.date,
-                    movie: data.movie.name,
-                    genero: data.movie.genre};
+    var searchByNameAndDate = function () {
+        funciones = cinema.map(function (data) {
+            return {
+                fecha: data.date,
+                movie: data.movie.name,
+                genero: data.movie.genre
+            };
         })
     }
 
-    var checkTable = function(){
-        $('#mainTable').find('td[name="movie"]').each(function(){
+    var checkTable = function () {
+        $('#mainTable').find('td[name="movie"]').each(function () {
             $(this).parents("tr").remove();
         });
     }
 
-    var drawFunction = function(seats){
-        var i =space, j=0;
+    var drawFunction = function (seats) {
+        var i = space, j = 0;
         console.log(widht);
         console.log(height);
-        var totalH = seats.length*height;
-        var totalW = seats[0].length*widht;
-        var interlineado = (seats.length - 1)*space + space *2;
-        var intercolumnas = (seats[0].length - 1)*space + space *2;
+        var totalH = seats.length * height;
+        var totalW = seats[0].length * widht;
+        var interlineado = (seats.length - 1) * space + space * 2;
+        var intercolumnas = (seats[0].length - 1) * space + space * 2;
         var c = document.getElementById("myCanvas");
         var ctx = c.getContext("2d");
         console.log(totalW);
         console.log(totalH + interlineado);
         ctx.canvas.height = totalH + interlineado;
         ctx.canvas.width = totalW + intercolumnas;
-        seats.forEach(function(row){
+        seats.forEach(function (row) {
             console.log(row);
-            j=space;
-            row.forEach(function(coll){
+            j = space;
+            row.forEach(function (coll) {
                 console.log(coll);
                 // Create gradient
                 var grd = ctx.createRadialGradient(55, 50, 5, 70, 30, 80);
-                grd.addColorStop(0, coll===true ? "green": "red");
+                grd.addColorStop(0, coll === true ? "green" : "red");
                 // Fill with gradient
                 ctx.fillStyle = grd;
                 ctx.fillRect(j, i, widht, height);
-                j+=widht + space;
+                j += widht + space;
             });
-            i+=height +space;
+            i += height + space;
         });
 
 
@@ -92,26 +160,26 @@ var app = (function (){
         console.log("ok");
     }
 
-    var setFunction= function(functionsSource){
+    var setFunction = function (functionsSource) {
         var movieSelected = functionsSource.filter(
             (p) => p.movie.name == movieName);
-        if(movieSelected.length != 0 ){
+        if (movieSelected.length != 0) {
             console.log(movieSelected[0]['seats']);
             drawFunction(movieSelected[0]['seats']);
         }
     }
 
-    var updateFunctionPut = function(nuevaFecha){
+    var updateFunctionPut = function (nuevaFecha) {
         console.log("LOCURA")
         var jsonu = {
             "date": nuevaFecha
         }
-        var put =  $.ajax({
-            url: "/cinemas/"+ name + "/"+currentDate + "/" + movieName,
+        var put = $.ajax({
+            url: "/cinemas/" + name + "/" + currentDate + "/" + movieName,
             type: 'PUT',
             data: JSON.stringify(jsonu),
             contentType: "application/json",
-            success: function(data){
+            success: function (data) {
                 console.log(data)
                 console.log("1")
             }
@@ -119,7 +187,7 @@ var app = (function (){
         return put;
     }
 
-    var createFunctionPost = function(newMovie,newDate,newGenre){
+    var createFunctionPost = function (newMovie, newDate, newGenre) {
         console.log("nueva")
         console.log(newMovie)
         console.log(newDate)
@@ -128,12 +196,12 @@ var app = (function (){
             "name": newMovie,
             "genre": newGenre
         }
-        var post =  $.ajax({
-            url: "/cinemas/"+ name + "/" + newDate,
+        var post = $.ajax({
+            url: "/cinemas/" + name + "/" + newDate,
             type: 'POST',
             data: JSON.stringify(jsonu),
             contentType: "application/json",
-            success: function(data){
+            success: function (data) {
                 console.log(data)
                 console.log("1")
             }
@@ -141,15 +209,15 @@ var app = (function (){
         return post;
     }
 
-    var getFunction = function(){
+    var getFunction = function () {
         app.setFuntionsByNameAndDate(name, fecha);
     }
 
-    var deleteFunction = function(){
-        var del =  $.ajax({
-            url: "/cinemas/"+ name + "/"+currentDate + "/" + movieName,
+    var deleteFunction = function () {
+        var del = $.ajax({
+            url: "/cinemas/" + name + "/" + currentDate + "/" + movieName,
             type: 'DELETE',
-            success: function(data){
+            success: function (data) {
                 console.log(data)
                 console.log("1")
             }
@@ -158,21 +226,21 @@ var app = (function (){
     }
 
     return {
-        setNameCinema : function (newName){
-            name=newName;
+        setNameCinema: function (newName) {
+            name = newName;
         },
-        setDateCinema : function (newFecha){
-            fecha=newFecha;
+        setDateCinema: function (newFecha) {
+            fecha = newFecha;
         },
-        setFuntionsByNameAndDate : function(nombre, date){
+        setFuntionsByNameAndDate: function (nombre, date) {
             app.setDateCinema(date);
             app.setNameCinema(nombre);
-            REPOSITORY.getFunctionsByCinemaAndDate(nombre,date,callback);
+            REPOSITORY.getFunctionsByCinemaAndDate(nombre, date, callback);
         },
-        setFuntionsByName : function(name){
-            REPOSITORY.getFunctionsByCinema(name,callback);
+        setFuntionsByName: function (name) {
+            REPOSITORY.getFunctionsByCinema(name, callback);
         },
-        setFunctionByNameDateMovie: function(cinema, date, movie){
+        setFunctionByNameDateMovie: function (cinema, date, movie) {
             movieName = movie;
             currentDate = date;
             name = cinema;
@@ -180,30 +248,52 @@ var app = (function (){
             REPOSITORY.getFunctionsByCinemaAndDate(cinema, date, setFunction);
         },
 
-        getCurrentCinema: function(){
+        getCurrentCinema: function () {
             return name;
         },
 
-        updateFunction: function(newDate){
+        updateFunction: function (newDate) {
             console.log()
             $('#divCheckbox').hide();
             console.log(newDate);
             updateFunctionPut(newDate)
-            .then(getFunction);
+                .then(getFunction);
         },
 
-        createFunction: function(newMovie,newDate,newGenre){
+        createFunction: function (newMovie, newDate, newGenre) {
             console.log()
             $('#divCheckbox').hide();
-            createFunctionPost(newMovie,newDate,newGenre)
-            .then(getFunction);
+            createFunctionPost(newMovie, newDate, newGenre)
+                .then(getFunction);
         },
 
-        deleteCurrentFunction: function(){
+        deleteCurrentFunction: function () {
             $('#divCheckbox').hide();
             deleteFunction().then(
                 getFunction
             );
+        },
+
+        init: function () {
+            //var can = document.getElementById("canvas");
+            //drawSeats();
+            //websocket connection
+            connectAndSubscribe();
+        },
+
+        buyTicket: function (row, col) {
+            console.info("buying ticket at row: " + row + "col: " + col);
+            verifyAvailability(row, col);
+
+            //buy ticket
+        },
+
+        disconnect: function () {
+            if (stompClient !== null) {
+                stompClient.disconnect();
+            }
+            setConnected(false);
+            console.log("Disconnected");
         }
     };
 

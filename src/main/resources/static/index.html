@@ -17,6 +17,8 @@
 		<script src="js/apimock.js"></script>
 		<script src="js/apiclient.js"></script>
 		<script src="js/app.js"></script>
+		<script src="/webjars/stomp-websocket/stomp.min.js"></script>
+		<script src="/webjars/sockjs-client/sockjs.min.js"></script>
 		<script src="js/buttonseeker.js"></script>
 		<style>
 			.grid-container{
@@ -26,7 +28,7 @@
 			}
 		</style>
 	</head>
-	<body>
+	<body onload="app.init()">
 	
 		<div class="Principal">
 			<h1>Cinema Bookings</h1>
@@ -83,6 +85,13 @@
 														document.getElementById('newGenre').value)">Create new function</button>
 					<button onclick="app.deleteCurrentFunction()">Delete function</button>
 					<br></br>
+				</div>
+
+				<div class="grid-item console">
+					<br></br>
+					<input id="row" placeholder="Row" type="number"></input>
+					<input id="col" placeholder="Column" type="number"></input>
+					<button onclick="app.buyTicket(Number($('#row').val()),  Number($('#col').val()) )">Buy ticket</button>
 				</div>
 			</div>
 
