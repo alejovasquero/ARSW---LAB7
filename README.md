@@ -121,7 +121,7 @@ P2
 
 
 Diagrama
-![](img/README/client2.png)
+![](img/README/Client2.png)
 
 ## Construido con
 
