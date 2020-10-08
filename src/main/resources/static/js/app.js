@@ -229,9 +229,11 @@ var app = (function () {
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
             console.log("AYYYYYYYYYYYYYYYYYYY 1");
-            stompClient.subscribe('/app/buyticket.' + cinema + "." + date + "." + movie, function (eventbody) {
+            stompClient.subscribe('/topic/buyticket.' + cinema + "." + date + "." + movie, function (eventbody) {
+                //alert("Warn event");
+                console.log("event topic");
                 var theObject = JSON.parse(eventbody.body);
-                console.log("AYYYYYYYYYYYYYYY")
+                console.log("AYYYYY");
                 fillSeat(theObject.row, theObject.col);
                 console.log(theObject);
             });
@@ -273,11 +275,12 @@ var app = (function () {
         if (seats[row][col] === true) {
             seats[row][col] = false;
             console.info("purchased ticket");
+            console.log(name,currentDate,movieName);
             stompClient.send('/app/buyticket.' + name + "." + currentDate + "." + movieName, {}, JSON.stringify(st));
             drawFunction(seats);
-            disconnect();
         } else {
             console.info("Ticket not available");
+            alert("Ya se reservo");
         }
     };
 
