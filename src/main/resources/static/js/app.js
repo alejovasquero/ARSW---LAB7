@@ -10,6 +10,7 @@ var app = (function () {
     var currentDate = "";
 
 
+    var connected = false;
     var currentRow = null;
     var currentCol = null;
     var stompClient = null;
@@ -273,17 +274,26 @@ var app = (function () {
             seats[row][col] = false;
             console.info("purchased ticket");
             stompClient.send('/app/buyticket.' + name + "." + currentDate + "." + movieName, {}, JSON.stringify(st));
+            drawFunction(seats);
+            disconnect();
         } else {
             console.info("Ticket not available");
         }
     };
 
+    var disconnect = function () {
+        if (stompClient !== null && connected === true) {
+            stompClient.disconnect();
+            connected = false;
+        }
+        console.log("Disconnected");
+    };
+
     return {
         init: function () {
             try {
-                
+                disconnect();
             } catch (error) {
-
                 //websocket connection
                 this.connectAndSubscribe(name,currentDate,movieName);
             }
