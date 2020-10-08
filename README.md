@@ -78,6 +78,51 @@ Realizamos el cambio al código y las solicitudes.
 
 ![](img/README/final3.PNG)
 
+## Parte 4
+
+Funcionalidad
+
+5.1 Ingrese en una pestaña (P1) a una función y compre un asiento, después de esto ingrese en otra pestaña (P2) e ingrese a la misma función, debería verse replicado que el asiento está lleno,
+
+P1
+![](img/README/51p1.JPG)
+
+P2
+![](img/README/51p2.JPG)
+
+5.2 Ahora en otra pestaña (P3) ingrese a otra función, esta no debería tener replicada la compra de ese asiento.
+
+P3
+![](img/README/52p3.JPG)
+
+5.3 Ingrese a la P2, y compre otro asiento, esta compra debe verse reflejada en la P1 y P2, mas no en la P3
+
+P1
+![](img/README/53p1.JPG)
+
+P2
+![](img/README/53p2.JPG)
+
+P3
+![](img/README/53p3.JPG)
+
+P2
+![](img/README/53p22.JPG)
+
+5.4 Pruebe la funcionalidad comprando tickets en más de 2 salas al tiempo y verificando que no se cruce la compra de los asientos de una sala a otra
+
+P1
+![](img/README/54p1.JPG)
+
+P2
+![](img/README/54p2.JPG)
+
+![](img/README/54p22.JPG)
+
+
+Diagrama
+![](img/README/client2.png)
+
 ## Construido con
 
 * [Maven](https://maven.apache.org/) - Manejo de dependencias
