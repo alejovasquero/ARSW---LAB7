@@ -9,7 +9,7 @@ var stomp = (function () {
             this.col = col;
         }
     }
-
+    var connected = false;
     var canvas = null;
     var stompClient = null;
 
@@ -18,29 +18,34 @@ var stomp = (function () {
 
     var ancho = 20;
     var alto = 20;
+    
+    var currentCinema = null;
+    var currentDate = null;
+    var currentMovie = null;
 
-    var getColl =  function(x){
+
+    var getColl = function (x) {
         var start = xStart;
         var ans = undefined;
-        for(i=0; i< seats[0].length ; i++){
-            if(start <= x && x <= start + ancho){
+        for (i = 0; i < seats[0].length; i++) {
+            if (start <= x && x <= start + ancho) {
                 ans = i;
                 return ans;
             }
-            start+= ancho * 2;
+            start += ancho * 2;
         }
         return ans;
     }
 
-    var getRow =  function(y){
+    var getRow = function (y) {
         var start = yStart;
         var ans = undefined;
-        for(i=0; i< seats.length ; i++){
-            if(start <= y && y <= start + alto){
+        for (i = 0; i < seats.length; i++) {
+            if (start <= y && y <= start + alto) {
                 ans = i;
                 return ans;
             }
-            start+= alto * 2;
+            start += alto * 2;
         }
         return ans;
     }
@@ -54,7 +59,7 @@ var stomp = (function () {
             var colu = getColl(x);
             var roww = getRow(y);
             console.info(roww + " - " + colu)
-            if(colu != undefined && roww != undefined){
+            if (colu != undefined && roww != undefined) {
                 stomp.buyTicket(roww, colu);
             }
         });
@@ -90,6 +95,7 @@ var stomp = (function () {
     };
 
     var fillSeat = function (row, col) {
+        console.log("FILLING")
         console.log(row);
         console.log(col);
         c = document.getElementById("myCanvas");
@@ -99,16 +105,19 @@ var stomp = (function () {
         seats[row][col] = false;
     }
 
-    var connectAndSubscribe = function () {
+    var connectAndSubscribe = function (cinema, date, movie) {
         console.info('Connecting to WS...');
         var socket = new SockJS('/stompendpoint');
         stompClient = Stomp.over(socket);
+        connected = true;
 
         //subscribe to /topic/TOPICXX when connections succeed
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
-            stompClient.subscribe('/topic/buyticket', function (eventbody) {
+            console.log("AYYYYYYYYYYYYYYYYYYY 1");
+            stompClient.subscribe('/topic/buyticket.' + cinema + "." + date + "." + movie, function (eventbody) {
                 var theObject = JSON.parse(eventbody.body);
+                console.log("AYYYYYYYYYYYYYYY")
                 fillSeat(theObject.row, theObject.col);
                 console.log(theObject);
             });
@@ -121,13 +130,10 @@ var stomp = (function () {
         if (seats[row][col] === true) {
             seats[row][col] = false;
             console.info("purchased ticket");
-            stompClient.send("/topic/buyticket", {}, JSON.stringify(st));
-
-        }
-        else {
+            stompClient.send('/topic/buyticket.' + currentMovie + "." + currentDate + "." + currentMovie, {}, JSON.stringify(st));
+        } else {
             console.info("Ticket not available");
         }
-
     };
 
 
@@ -135,14 +141,12 @@ var stomp = (function () {
     return {
 
         init: function () {
-            connectAndSubscribe();
             try {
                 drawSeats();
             } catch (error) {
 
+                //websocket connection
             }
-            //websocket connection
-
 
         },
 
@@ -154,10 +158,10 @@ var stomp = (function () {
         },
 
         disconnect: function () {
-            if (stompClient !== null) {
+            if (stompClient !== null && connected === true) {
                 stompClient.disconnect();
+                connected = false;
             }
-            setConnected(false);
             console.log("Disconnected");
         },
 
@@ -167,6 +171,23 @@ var stomp = (function () {
                 canvas.addEventListener('click', getMousePosition(), false);
             } else {
                 canvas.addEventListener('click', callback, false);
+            }
+
+        },
+
+        connectAndSus: function () {
+            var cinema = $("#cinema").val();
+            var date = $("#date").val();
+            var movie = $("#movie").val();
+            console.log(cinema, date, movie);
+            if (cinema.length != 0 && date.length != 0 && movie.length != 0) {
+                this.disconnect();
+                currentCinema = cinema;
+                currentDate = date;
+                currentMovie = movie;
+                connectAndSubscribe(cinema, date, movie);
+            } else {
+                console.info("DATOS INVÁLIDOS");
             }
 
         }

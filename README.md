@@ -72,6 +72,12 @@ Realizamos la prueba de verificación, dando clic a un asiento.
 
 ![](img/README/testFinal2.PNG)
 
+## Parte 3
+
+Realizamos el cambio al código y las solicitudes.
+
+![](img/README/final3.PNG)
+
 ## Construido con
 
 * [Maven](https://maven.apache.org/) - Manejo de dependencias

@@ -15,8 +15,8 @@ and open the template in the editor.
     <script src="/webjars/stomp-websocket/stomp.min.js"></script>
     <script src="/webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="js/stomp.js"></script>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" 
-    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 
 
 
@@ -33,6 +33,17 @@ and open the template in the editor.
         <br></br>
         <button onclick="stomp.setListener()">Buy ticket</button>
     </div>
+
+    <div class="grid-item console">
+        <br></br>
+
+        <input id="cinema" placeholder="Cinema" type="text"></input>
+        <input id="date" placeholder="Fecha" type="text"></input>
+        <input id="movie" placeholder="Película" type="text"></input>
+        
+        <button onclick="stomp.connectAndSus()">Connect</button>
+    </div>
+
 
 </body>
 
