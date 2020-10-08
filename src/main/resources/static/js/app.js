@@ -9,8 +9,14 @@ var app = (function () {
     var movieName = "";
     var currentDate = "";
 
+
+    var currentRow = null;
+    var currentCol = null;
+    var stompClient = null;
+
+
     var seekerButton = "<td><button type='button' class='seeker'>"
-        + "Get Functions</button></td>"
+        + "Open Seats</button></td>"
     var widht = 70;
     var height = 70;
     var space = 3;
@@ -61,6 +67,43 @@ var app = (function () {
         });
     }
 
+    var xStart = 3;
+    var yStart = 3;
+    var c, ctx;
+    var seats;
+    class Seat {
+        constructor(row, col) {
+            this.row = row;
+            this.col = col;
+        }
+    }
+
+    var getColl = function (x) {
+        var start = xStart;
+        var ans = undefined;
+        for (i = 0; i < seats[0].length; i++) {
+            if (start <= x && x <= start + widht) {
+                ans = i;
+                return ans;
+            }
+            start += widht;
+        }
+        return ans;
+    }
+
+    var getRow = function (y) {
+        var start = yStart;
+        var ans = undefined;
+        for (i = 0; i < seats.length; i++) {
+            if (start <= y && y <= start + height) {
+                ans = i;
+                return ans;
+            }
+            start += height;
+        }
+        return ans;
+    }
+
     var drawFunction = function (seats) {
         var i = space, j = 0;
         console.log(widht);
@@ -96,12 +139,26 @@ var app = (function () {
         console.log("ok");
     }
 
+    var fillSeat = function (row, col) {
+        console.log("FILLING")
+        console.log(row);
+        console.log(col);
+        c = document.getElementById("myCanvas");
+        ctx = c.getContext("2d");
+        ctx.fillStyle = "#EDA232";
+        ctx.fillRect(73 * col + 8, 73 * row + 8, 60, 60);
+    }
+
     var setFunction = function (functionsSource) {
         var movieSelected = functionsSource.filter(
             (p) => p.movie.name == movieName);
         if (movieSelected.length != 0) {
             console.log(movieSelected[0]['seats']);
+            setListener();
+            seats=movieSelected[0]['seats'];
             drawFunction(movieSelected[0]['seats']);
+            connectAndSubscribe(name,currentDate,movieName);
+            console.log(name,currentDate,movieName);
         }
     }
 
@@ -161,7 +218,77 @@ var app = (function () {
         return del;
     }
 
+    var connectAndSubscribe = function (cinema, date, movie) {
+        console.info('Connecting to WS...');
+        var socket = new SockJS('/stompendpoint');
+        stompClient = Stomp.over(socket);
+        connected = true;
+
+        //subscribe to /topic/TOPICXX when connections succeed
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+            console.log("AYYYYYYYYYYYYYYYYYYY 1");
+            stompClient.subscribe('/app/buyticket.' + cinema + "." + date + "." + movie, function (eventbody) {
+                var theObject = JSON.parse(eventbody.body);
+                console.log("AYYYYYYYYYYYYYYY")
+                fillSeat(theObject.row, theObject.col);
+                console.log(theObject);
+            });
+        });
+
+    };
+
+    //get the x, y positions of the mouse click relative to the canvas
+    var getMousePosition = function (evt) {
+        $('#myCanvas').click(function (e) {
+            var rect = canvas.getBoundingClientRect();
+            var x = e.clientX - rect.left;
+            var y = e.clientY - rect.top;
+            console.info("x: "+x+" y: "+y)
+            var colu = getColl(x);
+            var roww = getRow(y);
+            console.info(roww + " - " + colu)
+            if (colu != undefined && roww != undefined) {
+                currentCol = colu;
+                currentRow = roww;
+                if (seats[currentRow][currentCol] === false) {
+                    alert("Asiento no disponible");
+                }else{
+                    fillSeat(currentRow,currentCol);
+                }
+            }
+        });
+
+
+    };
+
+    var setListener = function () {
+        canvas = document.getElementById('myCanvas');
+        canvas.addEventListener('click', getMousePosition(), false);
+    };
+
+    var verifyAvailability = function (row, col) {
+        var st = new Seat(row, col);
+        if (seats[row][col] === true) {
+            seats[row][col] = false;
+            console.info("purchased ticket");
+            stompClient.send('/app/buyticket.' + name + "." + currentDate + "." + movieName, {}, JSON.stringify(st));
+        } else {
+            console.info("Ticket not available");
+        }
+    };
+
     return {
+        init: function () {
+            try {
+                
+            } catch (error) {
+
+                //websocket connection
+                this.connectAndSubscribe(name,currentDate,movieName);
+            }
+
+        },
         setNameCinema: function (newName) {
             name = newName;
         },
@@ -210,9 +337,9 @@ var app = (function () {
             );
         },
 
-        buyTicket: function (row, col) {
-            console.info("buying ticket at row: " + row + "col: " + col);
-            verifyAvailability(row, col);
+        buyTicket: function () {
+            console.info("buying ticket at row: " + currentRow + "col: " + currentCol);
+            verifyAvailability(currentRow, currentCol);
         }
     }
 
